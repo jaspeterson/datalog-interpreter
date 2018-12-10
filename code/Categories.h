@@ -45,6 +45,8 @@ class Rules {
       bool scan();
       void getParser(Parser& parser);
       std::string toString();
+		Rule getRule(int index);
+		int getSize();
 };
 
 class Queries {
@@ -78,6 +80,7 @@ class Datalog {
 		//Interaction with Interpreter
 		std::vector<std::vector<std::string>> getSchemes();
 		std::vector<std::vector<std::string>> getFacts();
+		std::vector<std::vector<std::string>> getRules(); // Add a third dimension - preds get their own vector
 		std::vector<std::vector<std::string>> getQueries();
 		std::vector<std::string> getQueriesToString();
 };

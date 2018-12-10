@@ -73,6 +73,25 @@ vector<vector<string>> Datalog::getFacts() {
 	return tuples;
 }
 
+vector<vector<string>> Datalog::getRules() {
+	vector<vector<string>> convertRules;
+	for (int i = 0; i < this->rules.getSize(); i++) {
+		vector<string> nextRule;
+		nextRule.push_back(this->rules.getRule(i).getHeadPredicate().getHeader().toString()); 
+		for (unsigned int j = 0; j < this->rules.getRule(i).getHeadPredicate().getBody().size(); j++) {
+			nextRule.push_back(this->rules.getRule(i).getHeadPredicate().getBody().at(j).toString());
+		}
+		vector<Predicates> preds = this->rules.getRule(i).getPredicates();
+		for (unsigned int j = 0; j < preds.size(); j++) {
+			for (unsigned int k = 0; k < this->preds[i].getParameters().size()) {
+				nextRule.push_back(preds[i].getParameters().at(k).toString());
+			}
+		}
+		convertRules.push_back(nextRule);
+	}
+	return convertRules;
+}
+
 vector<vector<string>> Datalog::getQueries() {
 	vector<vector<string>> convertedQueries;
 	for (int i = 0; i < this->queries.getSize(); i++) {
@@ -199,6 +218,14 @@ bool Rules::scan() {
       }
    }
    return false;
+}
+
+Rule Rules::getRule(int index) {
+	return this->listRules[index];
+}
+
+int Rules::getSize() {
+	return this->listRules.size();
 }
 
 //******** Queries ********

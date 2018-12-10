@@ -17,6 +17,10 @@ Header Table::getHeader() {
 	return this->header;
 }
 
+Header* Table::getHeaderP() {
+	return &(this->header);
+}
+
 void Table::setHeader(Header& newHeader) {
 	this->header = newHeader;
 }
@@ -175,17 +179,22 @@ Table* Table::crossProduct(Table& Table2) {
 	return cpTable;
 }
 
-//Natural Join
-Table Table::joinTable(Table& jTable) {
-	//compare the headers and make column value pairs
-	vector<vector<int>> colValPairs;
-	for (int i = 0; i < this->header.getSize(); i++) {
-		for (int j = 0; j < jTable.getHeader().getSize(); j++) {
-			if (this->header.getElement(i) == jTable.getHeader().getElement(j)) {
-				colValPairs.push_back({i,j});
+vector<vector<int>> makeColValPairs(Header* a, Header* b) {
+	vector<vector<int>> pairs;
+	for (int i = 0; i < a->getSize(); i++) {
+		for (int j = 0; j < b->getSize(); j++) {
+			if (a->getElement(i) == b->getElement(j)) {
+				pairs.push_back({i,j});
 			}
 		}
 	}
+	return pairs;
+}
+
+//Natural Join
+Table Table::joinTable(Table& jTable) {
+	//compare the headers and make column value pairs
+	vector<vector<int>> colValPairs = makeColValPairs(this->getHeaderP(),jTable.getHeaderP());
 	//rename the second half: _Name
 	for (unsigned int i = 0; i < colValPairs.size(); i++) {
 		Header fixedHeader = jTable.getHeader();

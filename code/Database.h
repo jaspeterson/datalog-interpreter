@@ -16,6 +16,7 @@ class Database {
 		void addRelation(Table nextTable);
 		Table getRelation(std::string tableName);
 		void updateRelation(std::string tableName, Table update);
+		bool runRule(std::vector<std::vector<std::string>> rulePreds, std::string relationName, std::vector<std::string> tableHead);
 		//Query?
 			//find table, perform table functions, return Table
 		Table runQuery(std::vector<std::string> queryParams, std::string relationName, std::string queryHead);

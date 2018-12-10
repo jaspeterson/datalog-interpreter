@@ -54,6 +54,8 @@ class Rule {
       bool scan();
       void setHeader(Scheme head);
       void addPredicate(Predicate pred);
+		Scheme getHeadPredicate();
+		std::vector<Predicate> getPredicates();
 };
 
 class Query {

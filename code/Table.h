@@ -22,6 +22,7 @@ class Table {
 		std::string getName();
 		int getSize();
 		Header getHeader();
+		Header* getHeaderP();
 		void setHeader(Header& newHeader);
 		Row getRow(unsigned int index);
 		void addRow(Row nextRow);

@@ -16,6 +16,7 @@ class Interpreter {
 		void start();
 		void makeRelations();
 		void populateRelations();
+		void runRules();
 		void interpretQueries();
 };
 

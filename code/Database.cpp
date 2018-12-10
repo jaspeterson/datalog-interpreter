@@ -61,6 +61,17 @@ void outputResults(string queryHead, Table queriedRel, int unique) {
 	}
 }
 
+bool Database::runRule(std::vector<std::vector<std::string>> rulePreds, std::string relationName, std::vector<std::string> tableHead) {
+	//Get the tables and rename to predicate header
+	//Query the predicates
+	//Natural join
+	//project to match head predicate
+	//rename to main table
+	//save main table to string
+	//union
+	//compare strings, if different return true
+}
+
 Table Database::runQuery(vector<string> queryParams, string relationName, string queryHead) {
 	Table queriedRel = this->getRelation(relationName);
 	//select literals

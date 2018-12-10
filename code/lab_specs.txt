@@ -1,0 +1,11 @@
+Test Cases:
+	1 - union with one similar row
+	2 - union of identical relations
+	3 - natural join with one similar column
+	4 - natural join with no similar columns
+	5 - natural join with many tuples
+	6 - natural join with identical relations
+	7 - natural join followed by a union
+	8 - natural join projected then followed by a union
+	9 - natural join with many similar columns
+	10 - natural join

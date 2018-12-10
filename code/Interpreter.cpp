@@ -36,6 +36,21 @@ void Interpreter::populateRelations() {
 	}
 }
 
+void Interpreter::runRules() {
+	//Get rules
+	vector<vector<string>> rules = datalogProgram.getRules();
+	//run through the rules, while there are changes being made
+	bool isChange = true;
+	int count = 0;
+	while (isChange) {
+		isChange = false;
+		for (unsigned int i = 0; i < rules.size(); i++) {
+			// run a rule
+			if (relationalDatabase.runRule(//blah)) {isChange = true;}
+		}
+	}
+}
+
 void Interpreter::interpretQueries() {
 	//Get queries
 	vector<vector<string>> queries = datalogProgram.getQueries();

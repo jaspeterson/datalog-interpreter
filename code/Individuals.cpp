@@ -116,6 +116,14 @@ void Rule::addPredicate(Predicate pred) {
    this->predicates.push_back(pred);
 }
 
+Scheme Rule::getHeadPredicate() {
+	return this->headPredicate;
+}
+
+vector<Predicate> Rule::getPredicates() {
+	return this->predicates;
+}
+
 bool Rule::scan() {
    Scheme header;
    header.getParser(this->parser);
