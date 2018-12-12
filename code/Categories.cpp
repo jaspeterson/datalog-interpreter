@@ -73,24 +73,66 @@ vector<vector<string>> Datalog::getFacts() {
 	return tuples;
 }
 
-vector<vector<string>> Datalog::getRules() {
-	vector<vector<string>> convertRules;
+/*
+make a triple vector
+loop through the rules
+	make a double vector for each predicate
+	loop through the predicates
+		make a vector of the name and each element of the header
+
+*/
+
+vector<vector<vector<string>>> Datalog::getRules() {
+	//cout << "Get Rules" << endl;
+	vector<vector<vector<string>>> convertRules;
 	for (int i = 0; i < this->rules.getSize(); i++) {
-		vector<string> nextRule;
-		nextRule.push_back(this->rules.getRule(i).getHeadPredicate().getHeader().toString()); 
+		//cout << "Rule " << i+1 << endl;
+		vector<vector<string>> nextRule;
+		vector<string> headPredicate;
+		headPredicate.push_back(this->rules.getRule(i).getHeadPredicate().getHeader().toString());
 		for (unsigned int j = 0; j < this->rules.getRule(i).getHeadPredicate().getBody().size(); j++) {
-			nextRule.push_back(this->rules.getRule(i).getHeadPredicate().getBody().at(j).toString());
+			headPredicate.push_back(this->rules.getRule(i).getHeadPredicate().getBody().at(j).toString());
 		}
-		vector<Predicates> preds = this->rules.getRule(i).getPredicates();
+		nextRule.push_back(headPredicate);
+		//cout << headPredicate[0] << endl;
+		vector<Predicate> preds = this->rules.getRule(i).getPredicates();
 		for (unsigned int j = 0; j < preds.size(); j++) {
-			for (unsigned int k = 0; k < this->preds[i].getParameters().size()) {
-				nextRule.push_back(preds[i].getParameters().at(k).toString());
+			vector<string> predicate;
+			predicate.push_back(preds[j].getHeader().toString());
+			for (unsigned int k = 0; k < preds[j].getParameters().size(); k++) {
+				predicate.push_back(preds[j].getParameters().at(k).toString());
 			}
+			nextRule.push_back(predicate);
+			//cout << predicate[0] << endl;
 		}
 		convertRules.push_back(nextRule);
 	}
 	return convertRules;
 }
+
+/*vector<vector<string>> Datalog::getRules() {
+	cout << "Get Rules" << endl;
+	vector<vector<string>> convertRules;
+	for (int i = 0; i < this->rules.getSize(); i++) {
+		cout << "Rule " << i+1 << endl;
+		vector<string> nextRule;
+		nextRule.push_back(this->rules.getRule(i).getHeadPredicate().getHeader().toString() + " ");
+		for (unsigned int j = 0; j < this->rules.getRule(i).getHeadPredicate().getBody().size(); j++) {
+			nextRule[0] += this->rules.getRule(i).getHeadPredicate().getBody().at(j).toString() + " ";
+		}
+		cout << nextRule[0] << endl;
+		vector<Predicate> preds = this->rules.getRule(i).getPredicates();
+		for (unsigned int j = 0; j < preds.size(); j++) {
+			nextRule.push_back(preds[j].getHeader().toString() + " ");
+			for (unsigned int k = 0; k < preds[j].getParameters().size(); k++) {
+				nextRule[j+1] += preds[j].getParameters().at(k).toString() + " ";
+			}
+			cout << nextRule[i+j+1] << endl;
+		}
+		convertRules.push_back(nextRule);
+	}
+	return convertRules;
+}*/
 
 vector<vector<string>> Datalog::getQueries() {
 	vector<vector<string>> convertedQueries;

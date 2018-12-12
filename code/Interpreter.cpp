@@ -1,5 +1,6 @@
 #include "Interpreter.h"
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -38,7 +39,7 @@ void Interpreter::populateRelations() {
 
 void Interpreter::runRules() {
 	//Get rules
-	vector<vector<string>> rules = datalogProgram.getRules();
+	vector<vector<vector<string>>> rules = datalogProgram.getRules();
 	//run through the rules, while there are changes being made
 	bool isChange = true;
 	int count = 0;
@@ -46,9 +47,12 @@ void Interpreter::runRules() {
 		isChange = false;
 		for (unsigned int i = 0; i < rules.size(); i++) {
 			// run a rule
-			if (relationalDatabase.runRule(//blah)) {isChange = true;}
+			//get the relation
+			if (relationalDatabase.runRule(rules[i],rules[i][0][0],rules[i][0])) {isChange = true;}
 		}
+		count++;
 	}
+	cout << "Schemes populated after " << count << " passes through the Rules." << endl;
 }
 
 void Interpreter::interpretQueries() {

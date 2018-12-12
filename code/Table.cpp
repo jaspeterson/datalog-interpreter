@@ -32,6 +32,10 @@ Row Table::getRow(unsigned int index) {
 	//Return something else if false
 }
 
+Row* Table::getRowP(unsigned int index) {
+	return &(this->rows[index]);
+}
+
 void Table::addRow(Row nextRow) {
 	if (!checkRows(nextRow)) {
 		this->rows.push_back(nextRow);
@@ -75,6 +79,16 @@ Table Table::select(int index1, int index2) {
 		}
 	}
 	return updatedTable;	
+}
+
+Table* Table::selectP(int index, string value) {
+	Table* updatedTable = new Table(this->name, this->header);
+	for (int i = 0; i < this->getSize(); i++) {
+		if (this->getRow(i).getElement(index) == value) {
+			updatedTable->addRow(this->getRow(i));
+		}
+	}
+	return updatedTable;
 }
 
 Table* Table::selectP(int index1, int index2) {
@@ -133,6 +147,14 @@ Table Table::rename(Header renamedHeader) {
 	return renamedTable;
 }
 
+Table* Table::renameP(Header renamedHeader) {
+	Table* renamedTable = new Table(this->name,renamedHeader);
+	for (unsigned int i = 0; i < this->rows.size(); i++) {
+		renamedTable->addRow(this->rows[i]);
+	}
+	return renamedTable;
+}
+
 //Union
 void Table::unionTable(Table& uTable) {
 	if (this->getHeader().toString() == uTable.getHeader().toString()) {
@@ -142,38 +164,38 @@ void Table::unionTable(Table& uTable) {
 	}
 }
 
-Header combineHeaders(Header a, Header b) {
+Header combineHeaders(Header* a, Header* b) {
 	vector<string> newHeader;
-	for (int i = 0; i < a.getSize(); i++) {
-		newHeader.push_back(a.getElement(i));
+	for (int i = 0; i < a->getSize(); i++) {
+		newHeader.push_back(a->getElement(i));
 	}
-	for (int i = 0; i < b.getSize(); i++) {
-		newHeader.push_back(b.getElement(i));
+	for (int i = 0; i < b->getSize(); i++) {
+		newHeader.push_back(b->getElement(i));
 	}
 	Header header(newHeader);
 	return header;
 }
 
-Row combineRows(Row a, Row b) {
+Row combineRows(Row* a, Row* b) {
 	vector<string> newRow;
-	for (int i = 0; i < a.getSize(); i++) {
-		newRow.push_back(a.getElement(i));
+	for (int i = 0; i < a->getSize(); i++) {
+		newRow.push_back(a->getElement(i));
 	}
-	for (int i = 0; i < b.getSize(); i++) {
-		newRow.push_back(b.getElement(i));
+	for (int i = 0; i < b->getSize(); i++) {
+		newRow.push_back(b->getElement(i));
 	}
 	Row row(newRow);
 	return row;
 }
 
-Table* Table::crossProduct(Table& Table2) {
+Table Table::crossProduct(Table* Table2) {
 	//make one header
-	Header header = combineHeaders(this->getHeader(), Table2.getHeader());
-	Table* cpTable = new Table(this->name + "x" + Table2.getName(),header);
+	Header header = combineHeaders(this->getHeaderP(), Table2->getHeaderP());
+	Table cpTable(this->name + "x" + Table2->getName(),header);
 	//combine all rows - O(n^2)
 	for (int i = 0; i < this->getSize(); i++) {
-		for (int j = 0; j < Table2.getSize(); j++) {
-			cpTable->addRow(combineRows(this->getRow(i), Table2.getRow(j)));
+		for (int j = 0; j < Table2->getSize(); j++) {
+			cpTable.addRow(combineRows(this->getRowP(i), Table2->getRowP(j)));
 		}
 	}
 	return cpTable;
@@ -192,24 +214,21 @@ vector<vector<int>> makeColValPairs(Header* a, Header* b) {
 }
 
 //Natural Join
-Table Table::joinTable(Table& jTable) {
+Table Table::joinTable(Table* jTable) {
 	//compare the headers and make column value pairs
-	vector<vector<int>> colValPairs = makeColValPairs(this->getHeaderP(),jTable.getHeaderP());
+	vector<vector<int>> colValPairs = makeColValPairs(this->getHeaderP(),jTable->getHeaderP());
 	//rename the second half: _Name
 	for (unsigned int i = 0; i < colValPairs.size(); i++) {
-		Header fixedHeader = jTable.getHeader();
-		fixedHeader.setElement(colValPairs[i][1],"_" + this->header.getElement(colValPairs[i][1]));
-		jTable.setHeader(fixedHeader);
-		colValPairs[i][1] += this->getHeader().getSize();
+		jTable->getHeaderP()->setElement(colValPairs[i][1],"_" + this->header.getElement(colValPairs[i][1]));
+		colValPairs[i][1] += this->getHeaderP()->getSize();
 	}
 	//get the cross product
-	Table* joinedTable = this->crossProduct(jTable);
-	//cout << joinedTable->toString() << endl;
+	Table joinedTable = this->crossProduct(jTable);
 	//for (i in colpairs)
 		//select firstIndex == secondIndex + firstheader.size
 		//make project vector (all cols except 2nd half of tuple)
 	vector<int> projVect;
-	for (int i = 0; i < joinedTable->getHeader().getSize(); i++) {
+	for (int i = 0; i < joinedTable.getHeaderP()->getSize(); i++) {
 		bool isRepeat = false;
 		for (unsigned int j = 0; j < colValPairs.size(); j++) {
 			if (i == colValPairs[j][1]) {isRepeat = true;}
@@ -218,23 +237,15 @@ Table Table::joinTable(Table& jTable) {
 	}
 	
 	for (unsigned int i = 0; i < colValPairs.size(); i++) {
-		Table* temp = joinedTable;
-		joinedTable = joinedTable->selectP(colValPairs[i][0],colValPairs[i][1]);
-		delete temp;
+		joinedTable = joinedTable.select(colValPairs[i][0],colValPairs[i][1]);
 	}
-	
-	/*for (unsigned int i = 0; i < projVect.size(); i++) {
-		cout << projVect[i] << endl;
-	}*/
 	//project and return
-	Table* temp = joinedTable;
-	joinedTable = joinedTable->projectP(projVect);
-	delete temp;
-	return *joinedTable;
+	joinedTable = joinedTable.project(projVect);
+	return joinedTable;
 }
 
 // ***** Deprecated *****
-string Table::toString() {
+/*string Table::toString() {
 	//name\nh1,h2,h3\nr1,r2,r3\n...
 	ostringstream oss;
 	oss << this->name << "\n";
@@ -249,9 +260,8 @@ string Table::toString() {
 		if (i < (this->rows.size() - 1)) {oss << "\n";}
 	}
 	return oss.str();
-} 
+}*/
 
-/*
 string Table::toString() {
 	ostringstream oss;
 	for (unsigned int i = 0; i < this->rows.size(); i++) {
@@ -264,7 +274,7 @@ string Table::toString() {
 	}
 	return oss.str();
 }
-*/
+
 
 int compareRows(Row row1, Row row2) {
 	for (int k = 0; k < row1.getSize(); k++) {

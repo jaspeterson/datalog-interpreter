@@ -1,5 +1,7 @@
 #include "Database.h"
 #include <iostream>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -10,10 +12,13 @@ void Database::addRelation(Table nextTable) {
 Table Database::getRelation(string tableName) {
 	map<string, Table>::iterator it;
 	it = this->relations.find(tableName);
-//	if (it != this->relations.end()) {
 	return it->second;
-//	}
-	//Return something if false
+}
+
+Table* Database::getRelationP(string tableName) {
+	map<string, Table>::iterator it;
+	it = this->relations.find(tableName);
+	return &(it->second);
 }
 
 void Database::updateRelation(string tableName, Table update) {
@@ -61,15 +66,63 @@ void outputResults(string queryHead, Table queriedRel, int unique) {
 	}
 }
 
-bool Database::runRule(std::vector<std::vector<std::string>> rulePreds, std::string relationName, std::vector<std::string> tableHead) {
+bool Database::runRule(vector<vector<string>> rulePreds, string relationName, vector<string> tableHead) {
 	//Get the tables and rename to predicate header
 	//Query the predicates
+	cout << "Rule" << endl;
+	vector<Table> predicates;
+	for (unsigned int i = 1; i < rulePreds.size(); i++) {
+		predicates.push_back(runQuery(rulePreds[i], rulePreds[i][0]));
+	}
 	//Natural join
+	Table* temp = &(predicates[0]);
+	for (unsigned int i = 1; i < predicates.size(); i++) {
+		*temp = temp->joinTable(&(predicates[i]));
+	}
 	//project to match head predicate
-	//rename to main table
+	vector<int> projVec;
+	for(unsigned int i = 1; i < tableHead.size(); i++) {
+		for(int j = 0; j < temp->getHeaderP()->getSize(); j++) {
+			if (tableHead[i] == temp->getHeaderP()->getElement(j)) {
+				projVec.push_back(j);
+			}
+		}
+	}
+	*temp = temp->project(projVec);
+	*temp = temp->rename(this->getRelationP(relationName)->getHeader());
 	//save main table to string
+	string main = this->getRelationP(relationName)->toString();
 	//union
+	this->getRelationP(relationName)->unionTable(*temp);
 	//compare strings, if different return true
+	if (this->getRelationP(relationName)->toString() == main) {return false;}
+	return true;
+}
+
+Table Database::runQuery(vector<string> queryParams, string relationName) {
+	queryParams.erase(queryParams.begin());
+	Table queriedRel = this->getRelation(relationName);
+	//select literals
+	for (unsigned int i = 0; i < queryParams.size(); i++) {
+		if (queryParams[i][0] == '\'') {
+			queriedRel = queriedRel.select(i,queryParams[i]);
+		}
+	}
+	//select variables
+	for (unsigned int i = 0; i < queryParams.size(); i++) {
+		for (unsigned int j = queryParams.size() - (i + 1); j < queryParams.size(); j++) {
+			if (queryParams[i] == queryParams[j]) {
+				queriedRel = queriedRel.select(i,j);
+			}
+		}
+	}
+	//project & rename
+	vector<int> uniqueVariables = getUniqueVars(queryParams);
+	if (uniqueVariables.size() > 0) {
+		queriedRel = queriedRel.project(uniqueVariables);
+		queriedRel = queriedRel.rename(makeHeader(uniqueVariables, queryParams));
+	}
+	return queriedRel;
 }
 
 Table Database::runQuery(vector<string> queryParams, string relationName, string queryHead) {
