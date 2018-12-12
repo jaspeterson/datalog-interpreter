@@ -69,7 +69,6 @@ void outputResults(string queryHead, Table queriedRel, int unique) {
 bool Database::runRule(vector<vector<string>> rulePreds, string relationName, vector<string> tableHead) {
 	//Get the tables and rename to predicate header
 	//Query the predicates
-	cout << "Rule" << endl;
 	vector<Table> predicates;
 	for (unsigned int i = 1; i < rulePreds.size(); i++) {
 		predicates.push_back(runQuery(rulePreds[i], rulePreds[i][0]));
