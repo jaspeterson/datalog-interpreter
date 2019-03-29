@@ -1,2 +1,2 @@
-# cs236-lab4
-Completer lab 4 for CS 236
+# datalog-interpreter
+c++ program parses, interprets, and runs datalog programs
